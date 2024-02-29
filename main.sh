@@ -9,25 +9,28 @@ BOLD_MAGENTA='\033[1;35m' # Bold Magenta
 
 # Function to display script usage
 usage() {
-    echo -e "${BOLD_MAGENTA}<${RESET}${BOLD_GREEN}Info${RESET}${BOLD_MAGENTA}>${RESET} Usage: $0 -a <ip_address> [-s <min_rate>]" >&2
+    echo -e "${BOLD_MAGENTA}<${RESET}${BOLD_GREEN}Info${RESET}${BOLD_MAGENTA}>${RESET} Usage: $0 -a <ip_address> [-s <min_rate>] [-A]" >&2
     exit 1
 }
 
 # Check if there are at least 2 arguments
 if [ $# -lt 2 ]; then
     usage
-elif [ $# -gt 4 ]; then
+elif [ $# -gt 6 ]; then
     usage
 fi
 
 # Parse command line arguments
-while getopts ":a:s:" opt; do
+while getopts ":a:s:A" opt; do
     case $opt in
         a)
             ip_address=$OPTARG
             ;;
         s)
             min_rate=$OPTARG
+            ;;
+        A)
+            A_option=true
             ;;
         \?)
             echo -e "${BOLD_MAGENTA}<${RESET}${BOLD_RED}Warning${RESET}${BOLD_MAGENTA}>${RESET} Invalid option: -$OPTARG" >&2
@@ -101,4 +104,5 @@ while read -r line; do
         fi
     fi
 
-done < <(sudo nmap -p"$open_ports_list" -sS -sV -sC -T4 -v --min-rate 500 --traceroute "$ip_address" 2>/dev/null)
+done < <(sudo nmap -p"$open_ports_list" -sS -sV -sC -T4 -v --min-rate 500 --traceroute "$ip_address" ${A_option:+-A} 2>/dev/null)
+
